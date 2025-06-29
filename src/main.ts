@@ -6,16 +6,21 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
-import { TransformInterceptor } from './interceptors/transform.interceptor';
-import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { LoggingInterceptor } from 'src/interceptors/logging.interceptor';
+import { TransformInterceptor } from 'src/interceptors/transform.interceptor';
+import { HttpExceptionFilter } from 'src/filters/http-exception.filter';
+import { ChronicleConfigService } from 'src/services/common/chronicle-config.service';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import compress from '@fastify/compress';
 import rateLimit from '@fastify/rate-limit';
 import multipart from '@fastify/multipart';
+import { EnvKeys } from './types/common/EnvKeys.enum';
+import { assertNoMissingEnvVariables } from './helpers/functions/common/assert-no-missing-env-variables.function';
 
 async function bootstrap() {
+  assertNoMissingEnvVariables();
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
@@ -33,11 +38,17 @@ async function bootstrap() {
     }),
   );
 
+  const configService = app.get(ChronicleConfigService);
+
   // Register Fastify plugins
+  const originsString = configService.get(EnvKeys.ALLOWED_ORIGINS);
+  const origins =
+    typeof originsString === 'string'
+      ? originsString.split(',').map((origin) => origin.trim())
+      : ['http://localhost:3001'];
+
   await app.register(cors, {
-    origin: process.env.ALLOWED_ORIGINS?.split(',') || [
-      'http://localhost:3001',
-    ],
+    origin: origins,
     credentials: true,
   });
 
@@ -57,13 +68,13 @@ async function bootstrap() {
   });
 
   await app.register(rateLimit, {
-    max: 100,
-    timeWindow: '1 minute',
+    max: configService.get(EnvKeys.RATE_LIMIT_MAX, 100),
+    timeWindow: configService.get(EnvKeys.RATE_LIMIT_WINDOW, 60000),
   });
 
   await app.register(multipart, {
     limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB
+      fileSize: configService.get(EnvKeys.MAX_FILE_SIZE, 10 * 1024 * 1024),
     },
   });
 
@@ -90,7 +101,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('API Request Recorder')
     .setDescription('Central service for recording and replaying API requests')
-    .setVersion('1.0')
+    .setVersion('1.0.0')
     .addApiKey({ type: 'apiKey', name: 'x-api-key', in: 'header' }, 'api-key')
     .addBearerAuth()
     .build();
@@ -98,8 +109,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const port = process.env.PORT || 3000;
-  const host = process.env.HOST || '0.0.0.0';
+  const port = configService.get<number>(EnvKeys.PORT, 3000);
+  const host = configService.get<string>(EnvKeys.HOST, '0.0.0.0');
 
   await app.listen(port, host);
   console.log(`🚀 API Request Recorder running on http://${host}:${port}`);

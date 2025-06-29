@@ -1,13 +1,14 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { HealthDto } from '../dto/health.dto';
-import { ApiResponseWrapper } from '../decorators/api-response.decorator';
-import { ConfigService } from '@nestjs/config';
+import { HealthDto } from 'src/dto/health.dto';
+import { ApiResponseWrapper } from 'src/decorators/api-response.decorator';
+import { ChronicleConfigService } from 'src/services/common/chronicle-config.service';
+import { EnvKeys } from 'src/types/common/EnvKeys.enum';
 
 @ApiTags('Health')
 @Controller('health')
 export class HealthController {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ChronicleConfigService) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -27,7 +28,7 @@ export class HealthController {
       version: '1.0.0',
       timestamp: new Date().toISOString(),
       uptime: Math.floor(process.uptime()),
-      environment: this.configService.get('NODE_ENV') || 'development',
+      environment: this.configService.get(EnvKeys.NODE_ENV) || 'development',
     };
   }
 
@@ -171,7 +172,7 @@ export class HealthController {
       name: 'API Request Recorder',
       version: '1.0.0',
       description: 'Central service for recording and replaying API requests',
-      environment: process.env.NODE_ENV || 'development',
+      environment: this.configService.get(EnvKeys.NODE_ENV) || 'development',
       nodeVersion: process.version,
       platform: process.platform,
       memory: {

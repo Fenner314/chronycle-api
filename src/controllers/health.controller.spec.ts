@@ -1,19 +1,35 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthController } from './health.controller';
 import { ConfigService } from '@nestjs/config';
+import { ChronicleConfigService } from 'src/services/common/chronicle-config.service';
 
 describe('HealthController', () => {
   let controller: HealthController;
-  let configService: ConfigService;
+  let configService: ChronicleConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HealthController],
-      providers: [ConfigService],
+      providers: [
+        {
+          provide: ChronicleConfigService,
+          useValue: {
+            get: jest.fn(),
+            getOrDefault: jest.fn(),
+            getEnvironment: jest.fn(),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     controller = module.get<HealthController>(HealthController);
-    configService = module.get<ConfigService>(ConfigService);
+    configService = module.get<ChronicleConfigService>(ChronicleConfigService);
   });
 
   it('should be defined', () => {
@@ -52,11 +68,10 @@ describe('HealthController', () => {
 
     it('should return correct environment when NODE_ENV is set', () => {
       // Arrange
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
       const mockDate = new Date('2024-01-01T00:00:00.000Z');
       jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
       jest.spyOn(process, 'uptime').mockReturnValue(7200);
+      jest.spyOn(configService, 'get').mockReturnValue('production');
 
       // Act
       const result = controller.getHealth();
@@ -64,27 +79,20 @@ describe('HealthController', () => {
       // Assert
       expect(result.environment).toBe('production');
       expect(result.uptime).toBe(7200);
-
-      // Cleanup
-      process.env.NODE_ENV = originalEnv;
     });
 
     it('should return development as default environment when NODE_ENV is not set', () => {
       // Arrange
-      const originalEnv = process.env.NODE_ENV;
-      delete process.env.NODE_ENV;
       const mockDate = new Date('2024-01-01T00:00:00.000Z');
       jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
       jest.spyOn(process, 'uptime').mockReturnValue(1800);
+      jest.spyOn(configService, 'get').mockReturnValue(undefined);
 
       // Act
       const result = controller.getHealth();
 
       // Assert
       expect(result.environment).toBe('development');
-
-      // Cleanup
-      process.env.NODE_ENV = originalEnv;
     });
   });
 
@@ -144,8 +152,7 @@ describe('HealthController', () => {
 
     it('should return service information with correct structure', () => {
       // Arrange
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'test';
+      jest.spyOn(configService, 'get').mockReturnValue('test');
 
       // Act
       const result = controller.getInfo();
@@ -164,9 +171,6 @@ describe('HealthController', () => {
           free: 50,
         },
       });
-
-      // Cleanup
-      process.env.NODE_ENV = originalEnv;
     });
 
     it('should return correct memory usage in MB', () => {
@@ -221,32 +225,24 @@ describe('HealthController', () => {
 
     it('should return development as default environment when NODE_ENV is not set', () => {
       // Arrange
-      const originalEnv = process.env.NODE_ENV;
-      delete process.env.NODE_ENV;
+      jest.spyOn(configService, 'get').mockReturnValue(undefined);
 
       // Act
       const result = controller.getInfo();
 
       // Assert
       expect(result.environment).toBe('development');
-
-      // Cleanup
-      process.env.NODE_ENV = originalEnv;
     });
 
     it('should return correct environment when NODE_ENV is set', () => {
       // Arrange
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      jest.spyOn(configService, 'get').mockReturnValue('production');
 
       // Act
       const result = controller.getInfo();
 
       // Assert
       expect(result.environment).toBe('production');
-
-      // Cleanup
-      process.env.NODE_ENV = originalEnv;
     });
   });
 
