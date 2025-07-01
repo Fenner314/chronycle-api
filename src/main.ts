@@ -16,7 +16,7 @@ import compress from '@fastify/compress';
 import rateLimit from '@fastify/rate-limit';
 import multipart from '@fastify/multipart';
 import { EnvKeys } from './common/types/EnvKeys.enum';
-import { assertNoMissingEnvVariables } from './helpers/functions/common/assert-no-missing-env-variables.function';
+import { assertNoMissingEnvVariables } from './common/utils/assert-no-missing-env-variables.function';
 
 async function bootstrap() {
   assertNoMissingEnvVariables();
