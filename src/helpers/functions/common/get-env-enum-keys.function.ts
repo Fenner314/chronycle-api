@@ -1,4 +1,4 @@
-import { EnvKeys } from 'src/types/common/EnvKeys.enum';
+import { EnvKeys } from 'src/common/types/EnvKeys.enum';
 
 export const getEnvEnumKeys = () => {
   return EnvKeys;

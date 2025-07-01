@@ -8,7 +8,7 @@ import {
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { ErrorInterface } from 'src/types/common/Error.interface';
+import { ErrorInterface } from 'src/common/types/Error.interface';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {

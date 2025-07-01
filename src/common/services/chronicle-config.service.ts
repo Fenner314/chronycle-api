@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EnvKeys } from '../../types/common/EnvKeys.enum';
+import { EnvKeys } from '../types/EnvKeys.enum';
 
 @Injectable()
 export class ChronicleConfigService {

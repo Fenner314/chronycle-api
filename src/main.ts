@@ -6,16 +6,16 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { LoggingInterceptor } from 'src/interceptors/logging.interceptor';
-import { TransformInterceptor } from 'src/interceptors/transform.interceptor';
-import { HttpExceptionFilter } from 'src/filters/http-exception.filter';
-import { ChronicleConfigService } from 'src/services/common/chronicle-config.service';
+import { LoggingInterceptor } from 'src/common/interceptors/logging.interceptor';
+import { TransformInterceptor } from 'src/common/interceptors/transform.interceptor';
+import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
+import { ChronicleConfigService } from 'src/common/services/chronicle-config.service';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import compress from '@fastify/compress';
 import rateLimit from '@fastify/rate-limit';
 import multipart from '@fastify/multipart';
-import { EnvKeys } from './types/common/EnvKeys.enum';
+import { EnvKeys } from './common/types/EnvKeys.enum';
 import { assertNoMissingEnvVariables } from './helpers/functions/common/assert-no-missing-env-variables.function';
 
 async function bootstrap() {

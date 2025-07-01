@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthController } from './health.controller';
 import { ConfigService } from '@nestjs/config';
-import { ChronicleConfigService } from 'src/services/common/chronicle-config.service';
+import { ChronicleConfigService } from 'src/common/services/chronicle-config.service';
 
 describe('HealthController', () => {
   let controller: HealthController;

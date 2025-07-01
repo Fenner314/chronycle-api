@@ -1,6 +1,6 @@
 import { getEnvKeysFromFile } from './get-env-keys-from-file.function';
 import { getEnvEnumKeys } from './get-env-enum-keys.function';
-import { EnvKeys } from 'src/types/common/EnvKeys.enum';
+import { EnvKeys } from 'src/common/types/EnvKeys.enum';
 
 export const assertNoMissingEnvVariables = () => {
   const envKeys = getEnvKeysFromFile();

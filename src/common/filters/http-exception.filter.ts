@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { ErrorInterface } from 'src/types/common/Error.interface';
+import { ErrorInterface } from 'src/common/types/Error.interface';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {

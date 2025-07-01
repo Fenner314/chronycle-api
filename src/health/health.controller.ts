@@ -1,9 +1,9 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { HealthDto } from 'src/dto/health.dto';
-import { ApiResponseWrapper } from 'src/decorators/api-response.decorator';
-import { ChronicleConfigService } from 'src/services/common/chronicle-config.service';
-import { EnvKeys } from 'src/types/common/EnvKeys.enum';
+import { HealthDto } from 'src/health/dto/health.dto';
+import { ApiResponseWrapper } from 'src/common/decorators/api-response.decorator';
+import { ChronicleConfigService } from 'src/common/services/chronicle-config.service';
+import { EnvKeys } from 'src/common/types/EnvKeys.enum';
 
 @ApiTags('Health')
 @Controller('health')
