@@ -99,7 +99,7 @@ async function bootstrap() {
 
   // Swagger documentation
   const config = new DocumentBuilder()
-    .setTitle('API Request Recorder')
+    .setTitle('Chronycle API')
     .setDescription('Central service for recording and replaying API requests')
     .setVersion('1.0.0')
     .addApiKey({ type: 'apiKey', name: 'x-api-key', in: 'header' }, 'api-key')

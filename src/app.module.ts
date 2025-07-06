@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -5,6 +6,10 @@ import { AppService } from './app.service';
 import { HealthController } from './health/health.controller';
 import { ChronicleConfigService } from './common/services/chronicle-config.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RecordingModule } from './recording/recording.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { ApiKeysModule } from './api-keys/api-keys.module';
 
 @Module({
   imports: [
@@ -22,7 +27,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV !== 'production',
     }),
-    // RecordingModule,
+    AuthModule,
+    UsersModule,
+    ApiKeysModule,
+    RecordingModule,
     // ApiRegistrationModule,
     // ReplayModule
   ],
