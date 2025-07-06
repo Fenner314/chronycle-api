@@ -54,7 +54,8 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  get fullName(): string {
+  get fullName(): string | undefined {
+    if (!this.firstName || !this.lastName) return undefined;
     return `${this.firstName} ${this.lastName}`;
   }
 }

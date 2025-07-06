@@ -17,7 +17,9 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(
+    createUserDto: CreateUserDto,
+  ): Promise<Omit<User, 'password'> & { fullName: string }> {
     const existingUser = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
     });
@@ -33,7 +35,9 @@ export class UsersService {
       password: hashedPassword,
     });
 
-    return await this.usersRepository.save(user);
+    await this.usersRepository.save(user);
+
+    return this.returnUserWithoutPassword(user);
   }
 
   async findAll(): Promise<User[]> {
@@ -85,5 +89,16 @@ export class UsersService {
     }
 
     return null;
+  }
+
+  returnUserWithoutPassword(
+    user: User,
+  ): Omit<User, 'password'> & { fullName: string } {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userWithoutPassword } = user;
+    return {
+      ...userWithoutPassword,
+      fullName: `${user.firstName} ${user.lastName}`,
+    };
   }
 }
