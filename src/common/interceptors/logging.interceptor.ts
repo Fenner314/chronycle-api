@@ -4,11 +4,11 @@ import {
   ExecutionContext,
   CallHandler,
   Logger,
+  HttpException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { ErrorInterface } from 'src/common/types/Error.interface';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -33,12 +33,16 @@ export class LoggingInterceptor implements NestInterceptor {
           `${method} ${url} - ${response.statusCode} - ${delay}ms`,
         );
       }),
-      catchError((error: ErrorInterface) => {
+      catchError((error: HttpException) => {
         const delay = Date.now() - now;
+        const status = error.getStatus?.() || 500;
+        const message = error.message || 'Internal server error';
+
         this.logger.error(
-          `${method} ${url} - ${error.status || 500} - ${delay}ms - ${error.message}`,
+          `${method} ${url} - ${status} - ${delay}ms - ${message}`,
         );
-        throw new Error(error.message || 'Internal server error');
+
+        throw error;
       }),
     );
   }

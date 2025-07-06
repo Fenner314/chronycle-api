@@ -3,31 +3,55 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
-  HttpStatus,
   Logger,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { ErrorInterface } from 'src/common/types/Error.interface';
 
-@Catch()
+@Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
-  catch(exception: unknown, host: ArgumentsHost): void {
+  catch(exception: HttpException, host: ArgumentsHost): void {
+    console.log('=== HTTP EXCEPTION FILTER START ===');
+    console.log('Exception type:', exception.constructor.name);
+
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
     const request = ctx.getRequest<FastifyRequest>();
+    const status = exception.getStatus();
+    const message = exception.getResponse();
 
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+    console.log('Status:', status);
+    console.log('Message:', message);
 
-    const message =
-      exception instanceof HttpException
-        ? exception.getResponse()
-        : 'Internal server error';
+    // Handle UnprocessableEntityException (validation errors) with special formatting
+    if (exception instanceof UnprocessableEntityException) {
+      console.log('Handling UnprocessableEntityException');
+      const exceptionResponse = exception.getResponse();
 
+      if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse['message'] === 'Validation failed' &&
+        Array.isArray(exceptionResponse['errors'])
+      ) {
+        const responseBody = {
+          statusCode: status,
+          timestamp: new Date().toISOString(),
+          path: request.url,
+          message: 'Validation failed',
+          errors: exceptionResponse['errors'],
+        };
+
+        console.log('Sending validation error response:', responseBody);
+        response.status(status).send(responseBody);
+        console.log('=== HTTP EXCEPTION FILTER END ===');
+        return;
+      }
+    }
+
+    // Handle all other HTTP exceptions
     const errorResponse = {
       statusCode: status,
       timestamp: new Date().toISOString(),
@@ -43,5 +67,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     );
 
     response.status(status).send(errorResponse);
+    console.log('=== HTTP EXCEPTION FILTER END ===');
   }
 }

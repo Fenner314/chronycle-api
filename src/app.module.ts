@@ -10,6 +10,7 @@ import { RecordingModule } from './recording/recording.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ApiKeysModule } from './api-keys/api-keys.module';
+import { ExceptionFiltersModule } from './common/filters/exception-filters.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ApiKeysModule } from './api-keys/api-keys.module';
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV !== 'production',
     }),
+    ExceptionFiltersModule,
     AuthModule,
     UsersModule,
     ApiKeysModule,

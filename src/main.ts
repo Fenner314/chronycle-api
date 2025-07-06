@@ -1,6 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import {
+  ValidationPipe,
+  UnprocessableEntityException,
+  ValidationError,
+} from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
   FastifyAdapter,
@@ -85,6 +89,18 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       errorHttpStatusCode: 422,
+      exceptionFactory: (errors) => {
+        console.log('errors', errors);
+        const result = errors.map((error: ValidationError) => ({
+          field: error.property,
+          value: error.value as string,
+          message: Object.values(error.constraints as any)[0] as string,
+        }));
+        return new UnprocessableEntityException({
+          message: 'Validation failed',
+          errors: result,
+        });
+      },
     }),
   );
 
@@ -94,7 +110,7 @@ async function bootstrap() {
     new TransformInterceptor(),
   );
 
-  // Global filters
+  // Global filters - Only use the single HttpExceptionFilter
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // Swagger documentation
