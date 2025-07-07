@@ -29,7 +29,6 @@ export class UsersController {
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully' })
   async create(@Body() createUserDto: CreateUserDto) {
-    // return 'success';
     return await this.usersService.create(createUserDto);
   }
 

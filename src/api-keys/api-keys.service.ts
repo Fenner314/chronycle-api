@@ -137,10 +137,10 @@ export class ApiKeysService {
       ])
       .where('apiKey.userId = :userId', { userId })
       .getRawOne()) as {
-      total_keys: string;
-      total_usage: string;
-      active_keys: string;
-      expired_keys: string;
+      total_keys: number;
+      total_usage: number;
+      active_keys: number;
+      expired_keys: number;
     };
 
     return stats;
