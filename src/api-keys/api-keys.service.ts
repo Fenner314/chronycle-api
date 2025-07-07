@@ -100,7 +100,7 @@ export class ApiKeysService {
 
   async updateUsageStats(apiKeyId: string, ipAddress?: string): Promise<void> {
     await this.apiKeysRepository.update(apiKeyId, {
-      usageCount: () => 'usage_count + 1',
+      usageCount: () => 'usageCount + 1',
       lastUsedAt: new Date(),
       lastUsedIp: ipAddress,
     });
@@ -121,7 +121,7 @@ export class ApiKeysService {
   }
 
   private generateApiKey(): string {
-    const prefix = 'rr_'; // rr = request recorder
+    const prefix = 'cs_';
     const key = randomBytes(32).toString('hex');
     return `${prefix}${key}`;
   }

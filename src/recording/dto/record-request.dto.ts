@@ -6,6 +6,7 @@ import {
   IsIn,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { RecordingRequestMethod } from '../types/recording-request-methods.enum';
 
 export class RecordRequestDto {
   @ApiProperty()
@@ -18,7 +19,11 @@ export class RecordRequestDto {
 
   @ApiProperty()
   @IsString()
-  @IsIn(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'])
+  @IsIn(Object.values(RecordingRequestMethod), {
+    message:
+      'Methodmust be one of the following values: ' +
+      Object.values(RecordingRequestMethod).join(', '),
+  })
   method: string;
 
   @ApiProperty()
