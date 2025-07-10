@@ -7,38 +7,56 @@ import {
   Query,
   Delete,
   UseGuards,
-  // Request,
+  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiSecurity,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { RecordingService } from './recording.service';
 import { RecordRequestDto } from './dto/record-request.dto';
-import { ApiKeyGuard } from '../common/guards/api-key.guard';
-// import { JwtRequest } from 'src/auth/dto/jwt-request.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtRequest } from 'src/auth/dto/jwt-request.dto';
 
 @ApiTags('Recording')
 @Controller('api/v1/recording')
-@UseGuards(ApiKeyGuard)
-@ApiSecurity('api-key')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class RecordingController {
   constructor(private readonly recordingService: RecordingService) {}
 
-  @Post('record')
-  @ApiOperation({ summary: 'Record a new API request' })
+  @Post()
+  @ApiOperation({ summary: 'Record a new request' })
   @ApiResponse({ status: 201, description: 'Request recorded successfully' })
   async recordRequest(
+    @Request() req: JwtRequest,
     @Body() recordRequestDto: RecordRequestDto,
-    // @Request() req: JwtRequest,
   ) {
-    // Ensure the API ID belongs to the authenticated user
     return await this.recordingService.recordRequest(
+      req.user.id,
       recordRequestDto,
-      // req.user.id,
     );
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get all recorded requests for current user' })
+  async findAll(@Request() req: JwtRequest) {
+    return await this.recordingService.findAllByUser(req.user.id);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a specific recorded request' })
+  async findOne(@Param('id') id: string, @Request() req: JwtRequest) {
+    return await this.recordingService.findOne(id, req.user.id);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a recorded request' })
+  async remove(@Param('id') id: string, @Request() req: JwtRequest) {
+    await this.recordingService.remove(id, req.user.id);
+    return { message: 'Request deleted successfully' };
   }
 
   @Get(':apiId/requests')
@@ -61,31 +79,15 @@ export class RecordingController {
     );
   }
 
-  @Get('request/:id')
-  @ApiOperation({ summary: 'Get a specific recorded request' })
-  async getRequestById(
-    @Param('id') id: string,
-    //  @Request() req: JwtRequest
-  ) {
-    return await this.recordingService.getRequestById(id);
-  }
-
-  @Delete('request/:id')
-  @ApiOperation({ summary: 'Delete a recorded request' })
-  async deleteRequest(
-    @Param('id') id: string,
-    // @Request() req: JwtRequest
-  ) {
-    await this.recordingService.deleteRequest(id);
-    return { message: 'Request deleted successfully' };
-  }
-
   @Get(':apiId/stats')
   @ApiOperation({ summary: 'Get request statistics for an API' })
   async getRequestStats(
     @Param('apiId') apiId: string,
     // @Request() req: JwtRequest,
   ): Promise<any> {
-    return await this.recordingService.getRequestStats(apiId);
+    return await this.recordingService.getRequestStats(
+      apiId,
+      // req.user.id
+    );
   }
 }

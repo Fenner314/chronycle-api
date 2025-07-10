@@ -11,6 +11,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ApiKeysModule } from './api-keys/api-keys.module';
 import { ExceptionFiltersModule } from './common/filters/exception-filters.module';
+import { ReplayModule } from './replay/replay.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -29,10 +31,12 @@ import { ExceptionFiltersModule } from './common/filters/exception-filters.modul
       synchronize: process.env.NODE_ENV !== 'production',
     }),
     ExceptionFiltersModule,
+    CommonModule,
     AuthModule,
     UsersModule,
     ApiKeysModule,
     RecordingModule,
+    ReplayModule,
     // ApiRegistrationModule,
     // ReplayModule
   ],

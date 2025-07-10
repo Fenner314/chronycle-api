@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ApiKey } from './entities/api-key.entity';
@@ -144,5 +148,26 @@ export class ApiKeysService {
     };
 
     return stats;
+  }
+
+  async verifyApiKey(userId: string, apiKey: string): Promise<boolean> {
+    try {
+      const foundApiKey = await this.apiKeysRepository.findOne({
+        where: { key: apiKey, userId, isActive: true },
+        relations: ['user'],
+      });
+
+      if (!foundApiKey || foundApiKey.isExpired) {
+        return false;
+      }
+
+      return true;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new InternalServerErrorException(
+        'Failed to verify API key: ',
+        message,
+      );
+    }
   }
 }

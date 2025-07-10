@@ -4,14 +4,23 @@ import {
   Column,
   CreateDateColumn,
   Index,
+  ManyToOne,
 } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 
-@Entity('recorded_requests')
+@Entity('requests')
 @Index(['apiId', 'endpoint'])
 @Index(['timestamp'])
-export class RecordedRequest {
+@Index(['userId'])
+export class Request {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column()
+  userId: string;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  user: User;
 
   @Column()
   apiId: string;

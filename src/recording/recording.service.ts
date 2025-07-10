@@ -1,25 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RecordedRequest } from './entities/recorded-request.entity';
+import { Request } from './entities/request.entity';
 import { RecordRequestDto } from './dto/record-request.dto';
 
 @Injectable()
 export class RecordingService {
   constructor(
-    @InjectRepository(RecordedRequest)
-    private recordedRequestRepository: Repository<RecordedRequest>,
+    @InjectRepository(Request)
+    private requestRepository: Repository<Request>,
   ) {}
 
   async recordRequest(
+    userId: string,
     recordRequestDto: RecordRequestDto,
-  ): Promise<RecordedRequest> {
-    const recordedRequest = this.recordedRequestRepository.create({
+  ): Promise<Request> {
+    const request = this.requestRepository.create({
       ...recordRequestDto,
-      timestamp: new Date(),
+      userId,
     });
 
-    return await this.recordedRequestRepository.save(recordedRequest);
+    return await this.requestRepository.save(request);
+  }
+
+  async findAllByUser(userId: string): Promise<Request[]> {
+    return await this.requestRepository.find({
+      where: { userId },
+      relations: ['user'],
+      order: { timestamp: 'DESC' },
+    });
+  }
+
+  async findOne(id: string, userId: string): Promise<Request | null> {
+    return await this.requestRepository.findOne({
+      where: { id, userId },
+      relations: ['user'],
+    });
+  }
+
+  async remove(id: string, userId: string): Promise<void> {
+    const request = await this.findOne(id, userId);
+    if (request) {
+      await this.requestRepository.remove(request);
+    }
   }
 
   async getRecordedRequests(
@@ -28,8 +51,8 @@ export class RecordingService {
     offset: number = 0,
     endpoint?: string,
     method?: string,
-  ): Promise<{ requests: RecordedRequest[]; total: number }> {
-    const queryBuilder = this.recordedRequestRepository
+  ): Promise<{ requests: Request[]; total: number }> {
+    const queryBuilder = this.requestRepository
       .createQueryBuilder('request')
       .where('request.apiId = :apiId', { apiId })
       .orderBy('request.timestamp', 'DESC');
@@ -52,16 +75,8 @@ export class RecordingService {
     return { requests, total };
   }
 
-  async getRequestById(id: string): Promise<RecordedRequest | null> {
-    return await this.recordedRequestRepository.findOne({ where: { id } });
-  }
-
-  async deleteRequest(id: string): Promise<void> {
-    await this.recordedRequestRepository.delete(id);
-  }
-
   async getRequestStats(apiId: string): Promise<any> {
-    const stats = await this.recordedRequestRepository
+    const stats = await this.requestRepository
       .createQueryBuilder('request')
       .select([
         'COUNT(*) as total_requests',
