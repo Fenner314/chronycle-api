@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: chronycle-api
+    env: node
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: UV_THREADPOOL_SIZE
+        value: '128'
+    healthCheckPath: /health
+
+databases:
+  - name: chronycle-db
+    databaseName: chronycle
+    user: chronycle_user
