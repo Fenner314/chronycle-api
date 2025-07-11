@@ -29,6 +29,13 @@ import { CommonModule } from './common/common.module';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV !== 'production',
+      ssl:
+        process.env.NODE_ENV === 'production'
+          ? {
+              rejectUnauthorized: false,
+            }
+          : false,
+      logging: process.env.NODE_ENV === 'development',
     }),
     ExceptionFiltersModule,
     CommonModule,
