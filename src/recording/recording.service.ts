@@ -17,6 +17,7 @@ export class RecordingService {
   ): Promise<Request> {
     const request = this.requestRepository.create({
       ...recordRequestDto,
+      apiId: recordRequestDto.apiId ?? '',
       apiKeyId: apiKeyId,
     });
 
