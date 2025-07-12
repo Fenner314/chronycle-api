@@ -22,9 +22,9 @@ export class ReplayService {
 
   async replayRequest(
     requestId: string,
-    apiKey: string,
+    userId: string,
   ): Promise<ReplayRequestResponse> {
-    const request = await this.findValidRequest(apiKey, requestId);
+    const request = await this.findValidRequest(userId, requestId);
 
     if (!request) {
       throw new UnauthorizedException('Invalid API key or request not found');
@@ -42,38 +42,32 @@ export class ReplayService {
   }
 
   async findValidRequest(
-    apiKey: string,
+    userId: string,
     requestId: string,
   ): Promise<Request | null> {
-    try {
-      const request = await this.requestRepository.findOne({
-        where: {
-          id: requestId,
-        },
-      });
+    const request = await this.requestRepository.findOne({
+      where: {
+        id: requestId,
+      },
+    });
 
-      if (!request) {
-        return null;
-      }
+    if (!request) {
+      return null;
+    }
 
-      const isValidApiKey = request.apiKey.key === apiKey;
-      // const isValidApiKey = await this.apiKeysService.verifyApiKey(
-      //   request.apiKeyId,
-      //   apiKey,
-      // );
+    // const isValidApiKey = request.apiKey.key === apiKey;
+    const isValidApiKey = await this.apiKeysService.verifyApiKey(
+      userId,
+      request.apiKeyId,
+    );
 
-      if (!isValidApiKey) {
-        return null;
-      }
-
-      return request;
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new InternalServerErrorException(
-        'Failed to find valid request: ',
-        message,
+    if (!isValidApiKey) {
+      throw new UnauthorizedException(
+        'User not authorized to replay this request',
       );
     }
+
+    return request;
   }
 
   private async executeRequest(

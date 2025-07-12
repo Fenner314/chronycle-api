@@ -150,10 +150,10 @@ export class ApiKeysService {
     return stats;
   }
 
-  async verifyApiKey(userId: string, apiKey: string): Promise<boolean> {
+  async verifyApiKey(userId: string, apiKeyId: string): Promise<boolean> {
     try {
       const foundApiKey = await this.apiKeysRepository.findOne({
-        where: { key: apiKey, userId, isActive: true },
+        where: { id: apiKeyId, userId, isActive: true },
         relations: ['user'],
       });
 
