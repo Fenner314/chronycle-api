@@ -5,12 +5,14 @@ import {
   IsOptional,
   IsIn,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { RecordingRequestMethod } from '../types/recording-request-methods.enum';
 
 export class RecordRequestDto {
   @ApiProperty()
   @IsString()
+  @IsOptional()
+  @ApiPropertyOptional({ required: false })
   apiId: string;
 
   @ApiProperty()
