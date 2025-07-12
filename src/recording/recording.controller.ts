@@ -6,7 +6,6 @@ import {
   Param,
   Query,
   Delete,
-  UseGuards,
   Request,
 } from '@nestjs/common';
 import {
@@ -17,12 +16,10 @@ import {
 } from '@nestjs/swagger';
 import { RecordingService } from './recording.service';
 import { RecordRequestDto } from './dto/record-request.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtRequest } from 'src/auth/dto/jwt-request.dto';
 
 @ApiTags('Recording')
 @Controller('api/v1/recording')
-@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class RecordingController {
   constructor(private readonly recordingService: RecordingService) {}
