@@ -7,20 +7,25 @@ import {
   Query,
   Delete,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiBearerAuth,
+  ApiSecurity,
 } from '@nestjs/swagger';
 import { RecordingService } from './recording.service';
 import { RecordRequestDto } from './dto/record-request.dto';
 import { JwtRequest } from 'src/auth/dto/jwt-request.dto';
+import { ApiKeyGuard } from 'src/common/guards/api-key.guard';
+import { ApiKey as ApiKeyEntity } from 'src/api-keys/entities/api-key.entity';
+import { ApiKey } from 'src/common/decorators/api-key.decorator';
 
 @ApiTags('Recording')
 @Controller('api/v1/recording')
-@ApiBearerAuth()
+@UseGuards(ApiKeyGuard)
+@ApiSecurity('api-key')
 export class RecordingController {
   constructor(private readonly recordingService: RecordingService) {}
 
@@ -28,11 +33,11 @@ export class RecordingController {
   @ApiOperation({ summary: 'Record a new request' })
   @ApiResponse({ status: 201, description: 'Request recorded successfully' })
   async recordRequest(
-    @Request() req: JwtRequest,
     @Body() recordRequestDto: RecordRequestDto,
+    @ApiKey() apiKey: ApiKeyEntity,
   ) {
     return await this.recordingService.recordRequest(
-      req.user.id,
+      apiKey.id,
       recordRequestDto,
     );
   }
@@ -40,12 +45,14 @@ export class RecordingController {
   @Get()
   @ApiOperation({ summary: 'Get all recorded requests for current user' })
   async findAll(@Request() req: JwtRequest) {
+    // TODO - use apiKeyId instead of userId
     return await this.recordingService.findAllByUser(req.user.id);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a specific recorded request' })
   async findOne(@Param('id') id: string, @Request() req: JwtRequest) {
+    // TODO - use apiKeyId instead of userId
     return await this.recordingService.findOne(id, req.user.id);
   }
 

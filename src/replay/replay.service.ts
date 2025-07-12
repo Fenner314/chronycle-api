@@ -56,10 +56,11 @@ export class ReplayService {
         return null;
       }
 
-      const isValidApiKey = await this.apiKeysService.verifyApiKey(
-        request.userId,
-        apiKey,
-      );
+      const isValidApiKey = request.apiKey.key === apiKey;
+      // const isValidApiKey = await this.apiKeysService.verifyApiKey(
+      //   request.apiKeyId,
+      //   apiKey,
+      // );
 
       if (!isValidApiKey) {
         return null;

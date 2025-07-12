@@ -6,21 +6,21 @@ import {
   Index,
   ManyToOne,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { ApiKey } from '../../api-keys/entities/api-key.entity';
 
 @Entity('requests')
 @Index(['apiId', 'endpoint'])
 @Index(['timestamp'])
-@Index(['userId'])
+@Index(['apiKeyId'])
 export class Request {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  userId: string;
+  apiKeyId: string;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  user: User;
+  @ManyToOne(() => ApiKey, { onDelete: 'CASCADE' })
+  apiKey: ApiKey;
 
   @Column()
   apiId: string;

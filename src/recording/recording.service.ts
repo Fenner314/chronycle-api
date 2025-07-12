@@ -12,29 +12,29 @@ export class RecordingService {
   ) {}
 
   async recordRequest(
-    userId: string,
+    apiKeyId: string,
     recordRequestDto: RecordRequestDto,
   ): Promise<Request> {
     const request = this.requestRepository.create({
       ...recordRequestDto,
-      userId,
+      apiKeyId: apiKeyId,
     });
 
     return await this.requestRepository.save(request);
   }
 
-  async findAllByUser(userId: string): Promise<Request[]> {
+  async findAllByUser(apiKeyId: string): Promise<Request[]> {
     return await this.requestRepository.find({
-      where: { userId },
-      relations: ['user'],
+      where: { apiKeyId },
+      relations: ['apiKey'],
       order: { timestamp: 'DESC' },
     });
   }
 
-  async findOne(id: string, userId: string): Promise<Request | null> {
+  async findOne(id: string, apiKeyId: string): Promise<Request | null> {
     return await this.requestRepository.findOne({
-      where: { id, userId },
-      relations: ['user'],
+      where: { id, apiKeyId },
+      relations: ['apiKey'],
     });
   }
 
