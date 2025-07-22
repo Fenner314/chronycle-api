@@ -31,6 +31,10 @@ export class ReplayService {
     }
 
     try {
+      request.headers = {
+        ...request.headers,
+        'X-Chronycle-Ignore': true, // add custom header so recorder library doesn't record replays
+      };
       const response = await this.executeRequest(request);
       return response;
     } catch (error: unknown) {

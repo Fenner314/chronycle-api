@@ -24,12 +24,22 @@ export class RecordingService {
     return await this.requestRepository.save(request);
   }
 
-  async findAllByUser(apiKeyId: string): Promise<Request[]> {
+  async findAllByApiKeyId(apiKeyId: string): Promise<Request[]> {
     return await this.requestRepository.find({
       where: { apiKeyId },
       relations: ['apiKey'],
       order: { timestamp: 'DESC' },
     });
+  }
+
+  async findAllByUser(userId: string): Promise<Request[]> {
+    return await this.requestRepository
+      .createQueryBuilder('request')
+      .innerJoin('request.apiKey', 'apiKey')
+      .innerJoin('apiKey.user', 'user')
+      .where('apiKey.userId = :userId', { userId })
+      .orderBy('request.timestamp', 'DESC')
+      .getMany();
   }
 
   async findOne(id: string, apiKeyId: string): Promise<Request | null> {
